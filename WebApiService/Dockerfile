@@ -1,18 +1,42 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
 
 
-FROM mcr.microsoft.com/dotnet/core/sdk:5.0 AS build-env
+
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+
 WORKDIR /app
-# Copy csproj and restore as distinct layers
+
+EXPOSE 80
+
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+
+WORKDIR /src
+
 COPY *.csproj ./
-RUN dotnet restore
-# Copy everything else and build
+
+RUN dotnet restore "WebApiValuesService.csproj"
+
 COPY . ./
-RUN dotnet publish -c Release -o out
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+
+RUN dotnet build "WebApiValuesService.csproj" -c Release -o /app/build
+
+FROM build AS publish
+
+RUN dotnet publish "WebApiValuesService.csproj" -c Release -o /app/publish
+
+FROM base AS final
+
 WORKDIR /app
-COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "WebApiService.dll"] 
+
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["dotnet", "WebApiService.dll"]
+
+
+
+
+
+
 
