@@ -16,15 +16,15 @@ WORKDIR /src
 
 COPY *.csproj ./
 
-RUN dotnet restore "WebApiValuesService.csproj"
+RUN dotnet restore "WebApiService.csproj"
 
 COPY . ./
 
-RUN dotnet build "WebApiValuesService.csproj" -c Release -o /app/build
+RUN dotnet build "WebApiService.csproj" -c Release -o /app/build
 
 FROM build AS publish
 
-RUN dotnet publish "WebApiValuesService.csproj" -c Release -o /app/publish
+RUN dotnet publish "WebApiService.csproj" -c Release -o /app/publish
 
 FROM base AS final
 
